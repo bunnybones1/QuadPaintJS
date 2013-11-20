@@ -1,13 +1,26 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
-    <link rel="shortcut icon" href="/img/favicon.ico" />
+    <meta charset="UTF-8">
+	<meta name="apple-mobile-web-app-capable" content="no">
+  	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta property="og:title" content="QuadPaint"/>
+	<meta property="og:description" content="Paint in GL space."/>
+	<meta property="og:url" content="http://www.bunnybones.com/quadpaintjs"/>
+	
+    <title>QuadPaintJS</title>
+	<link rel="stylesheet/less" href="/styles/main.less" /> <!--  main.less -->
+    <!-- <link rel="stylesheet" href="/styles/main.css" />  main.css -->
+	<script src="/scripts/vendor/jquery.js"></script>
+    <script src="/scripts/vendor/less-1.4.1.min.js" type="text/javascript"></script>
+    <script src="/scripts/vendor/signals.js" type="text/javascript"></script>
+	<script src="/scripts/vendor/stats.min.js"></script>
+	<script src="/scripts/vendor/three.r62.js"></script>
+	<script src="/scripts/vendor/underscore.js"></script>
 </head>
 <body>
-    <div id="container" style="z-index:-1000; position:fixed; top:0"></div>
-    <script data-main="scripts/main.js" src="scripts/vendor/require.js"></script>
+	<script src="/scripts/main.js" type="text/javascript"></script>
+	<div id="threejsContainer" />
+	<!-- <script src="/scripts/mainStatic.js" type="text/javascript"></script>-->
 </body>
 </html>

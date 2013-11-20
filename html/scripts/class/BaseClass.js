@@ -1,4 +1,4 @@
-define( {
+var BaseClass = {
 	parent: function() {
 		// if the current function calling is the constructor
 		if( this.parent.caller.$$isConstructor ) {
@@ -37,4 +37,6 @@ define( {
 
 		return parentFunction.apply( this, arguments );
 	}
-});
+};
+
+module.exports = BaseClass;

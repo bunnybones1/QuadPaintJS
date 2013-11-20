@@ -1,43 +1,26 @@
-require.config({
-	baseUrl: 'scripts',
+var url = require('url'),
+http 		= require('http'),
+director 	= require('director'),
+screenfull 	= require('./vendor/screenfull'),
+Global 		= require('./Global'),
+QuadPaint   = require('./QuadPaint');
 
-	paths: {
-        'text': 'vendor/require/text',
-        'detector': 'vendor/Detector',
-        'stats': 'vendor/stats.min',
-        'three': 'vendor/three.r60',
-        'KeyboardState': 'vendor/THREEx.KeyboardState',
-        'RendererStats': 'vendor/THREEx.RendererStats',
-        'baseClass': 'vendor/jsOOP/baseClass',
-		'Class': 'vendor/jsOOP/Class',
-		'Signal': 'vendor/js-signals/signals.min',
-        'GUI': 'vendor/dat.gui',
-        '_': 'vendor/underscore',
-	},
+$('document').ready(function(){
+    
+	var quadPaint = new QuadPaint();
+	
+	var routes = {
+		'/startup': {
+			on: function(){
 
-    shim: {
-        'detector': {
-            exports: 'Detector'
-        },
-        'stats': {
-            exports: 'Stats'
-        },
-        'three': {
-            exports: 'THREE'
-        },
-        '_': { 
-            exports: '_'
-        },
-    },
-    urlArgs: "bust="+123321
-});
+			}		
+		},
+		'/:painting': {
+			on: function(section){
+				Nav.fadeIn(section);				
+			}
+		}
+	 };
 
-require([
-    "Global",
-    "QuadPaint"
-], function (
-    Global,
-    QuadPaint
-) {
-    var qp = new QuadPaint({});
+	var router = new director.Router(routes);
 });
