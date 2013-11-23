@@ -5,53 +5,59 @@ var Rectangle = new Class({
 	y: null,
 	width: null,
 	height: null,
-	splitAxis: null,
+	axis: null,
 	splits: null,
-	splitRatioRange: null,
+	fraction: .5,
+	antiFraction: .5,
 	childrenRects: null,
-	initialize:function(x, y, width, height) {
+	initialize:function(x, y, width, height, axis) {
+		this.axis = axis;
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 	},
-	split:function(axis, total) {
-		this.splitAxis = axis;
-		this.splits = total;
+	split:function(axis, fraction) {
+		this.axis = axis;
 		this.childrenRects = [];
-		this.splitRatioRange = 1/total;
-		for (var i = 0; i < total; i++) {
-			this.childrenRects[i] = new Rectangle();
-		};
+		this.fraction = fraction;
+		this.antiFraction = 1-fraction;
+		switch (this.axis) {
+			case "x":
+				this.childrenRects[0] = new Rectangle(this.x, this.y, this.width * this.fraction, this.height, "y");
+				this.childrenRects[1] = new Rectangle(this.x + this.width * this.fraction, this.y, this.width * this.antiFraction, this.height, "y");
+			break;
+			case "y":
+				this.childrenRects[0] = new Rectangle(this.x, this.y, this.width, this.height * this.fraction, "x");
+				this.childrenRects[1] = new Rectangle(this.x, this.y + this.height * this.fraction, this.width, this.height * this.antiFraction, "x");
+			break;
+		}
 		this.onResize(this.width, this.height);
 		return this.childrenRects;
 	},
 	onResize:function(width, height) {
 		this.width = width;
 		this.height = height;
-
 		if(this.childrenRects) {
-			switch (this.splitAxis) {
-				case "y":
-					for (var i = 0; i < this.splits; i++) {
-						var ratioIn = i / this.splits;
-						var ratioOut = (i+1) / this.splits;
-						this.childrenRects[i].x = this.x + this.width * ratioIn;
-						this.childrenRects[i].y = this.y;
-						this.childrenRects[i].onResize(this.width * this.splitRatioRange, this.height);
-					};
-					break;
+			switch (this.axis) {
 				case "x":
-					for (var i = 0; i < this.splits; i++) {
-						var ratioIn = i / this.splits;
-						var ratioOut = (i+1) / this.splits;
-						this.childrenRects[i].x = this.x;
-						this.childrenRects[i].y = this.y + this.height * ratioIn;
-						this.childrenRects[i].onResize(this.width, this.height * this.splitRatioRange);
-					};
-					break;
+					this.childrenRects[0].setPos(this.x, this.y);
+					this.childrenRects[0].onResize(this.width * this.fraction, this.height);
+					this.childrenRects[1].setPos(this.x + this.width * this.fraction, this.y);
+					this.childrenRects[1].onResize(this.width * this.antiFraction, this.height);
+				break;
+				case "y":
+					this.childrenRects[0].setPos(this.x, this.y + this.height * this.antiFraction);
+					this.childrenRects[0].onResize(this.width, this.height * this.fraction);
+					this.childrenRects[1].setPos(this.x, this.y);
+					this.childrenRects[1].onResize(this.width, this.height * this.antiFraction);
+				break;
 			}
 		}
+	},
+	setPos:function(x, y) {
+		this.x = x;
+		this.y = y;
 	}
 });
 module.exports = Rectangle;

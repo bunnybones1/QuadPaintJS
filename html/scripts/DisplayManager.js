@@ -1,12 +1,13 @@
 var Class = require('./class/Class');
 var BaseObject = require('./core/BaseObject');
 var SplittingView = require('./SplittingView');
+var SplittingViewUI = require('./SplittingViewUI');
 var TestFactory = require('./TestFactory');
 var Global = require('./Global');
 
 var DisplayManager = new Class({
     Extends: BaseObject,
-    viewports: null,
+    splittingViewUI: null,
     initialize:function(values) {
         console.log("Initializing DisplayManager");
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -14,11 +15,17 @@ var DisplayManager = new Class({
         this.splittingView = new SplittingView(this.scene, this.renderer);
         this.splittingView.renderSignal.add(this.render.bind(this));
         this.camera = this.splittingView.camera;
-        this.splittingView.split("x", 8, 2);
+        var firstSplit = this.splittingView.split("x", .33);
+        firstSplit[0].split("y", .33)[0].split("x", .33)[0].split("y", .33)[0].split("x", .33);
+        var middleSplit = firstSplit[1].split("x", .5);
+        middleSplit[0].split("y", .5);
+        middleSplit[1].split("y", .66)[1].split("x", .66)[1].split("y", .66);
         //DOM
         var container = $('#threejsContainer');
         this.canvas = this.renderer.domElement;
         container.append(this.canvas);
+
+        this.splittingViewUI = new SplittingViewUI(container, this.canvas);
 
         //stats
         stats = new Stats();
@@ -43,6 +50,7 @@ var DisplayManager = new Class({
     onResize:function(width, height) {
         this.splittingView.onResize(width, height);
         console.log("resize");
+        this.splittingViewUI.onResize(width, height);
         //this.canvas.width = width;
         //this.canvas.height = height;
     }

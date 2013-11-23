@@ -10,9 +10,11 @@ var SplittingSubView = new Class({
 	childrenViews: null,
 	viewRectangle: null,
 	randomSeed: 0,
+	axis: "y",
 	initialize:function(scene, renderer, parentView, viewRectangle) {
 		this.scene = scene;
 		this.renderer = renderer;
+		this.axis = !parentView ? "x" : (parentView.axis == "x") ? "y" : "x";
 
 		this.camera = new THREE.PerspectiveCamera(45, Global.aspectRatio, 1, 10000);
 		this.scene.add(this.camera);
@@ -28,19 +30,25 @@ var SplittingSubView = new Class({
 				this.childrenViews[i].render();
 			};
 		} else {
-            this.renderer.setViewport( this.viewRectangle.x, this.viewRectangle.y, this.viewRectangle.width, this.viewRectangle.height );
+            this.renderer.setViewport( ~~this.viewRectangle.x, ~~this.viewRectangle.y, ~~this.viewRectangle.width, ~~this.viewRectangle.height );
 	        this.renderer.render(this.scene, this.camera);
 		}
 	},
-	split: function(axis, total, depth) {
-		depth-=1;
+	split: function(axis, fraction) {
 		if(!this.childrenViews) {
 			this.childrenViews = [];
-			var rectangles = this.viewRectangle.split(axis, total);
-			for (var i = 0; i < total; i++) {
+			var rectangles = this.viewRectangle.split(axis, fraction);
+			for (var i = 0; i < 2; i++) {
 				this.childrenViews[i] = new SplittingSubView(this.scene, this.renderer, this, rectangles[i]);
-				if(depth > 0) this.childrenViews[i].split(axis=="x" ? "y" : "x", total, depth);
 			};
+			return this.childrenViews;
+		}
+	},
+	splitUnderCoordinate: function(x, y) {
+		if(this.viewRectangle.contains(x, y)) {
+			if(this.childrenViews) {
+
+			}
 		}
 	},
     onResize:function(width, height) {
