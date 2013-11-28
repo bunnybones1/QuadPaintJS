@@ -24,8 +24,8 @@ var SplittingView = new Class({
 	},
 	onResize:function(width, height) {
         this.renderer.setSize(width, height);
-		this.parent(width, height);
 		this.viewRectangle.onResize(width, height);
+		this.parent(width, height);
 	}
 });
 module.exports = SplittingView;

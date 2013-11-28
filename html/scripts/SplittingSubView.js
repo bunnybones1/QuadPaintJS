@@ -44,16 +44,29 @@ var SplittingSubView = new Class({
 			return this.childrenViews;
 		}
 	},
-	splitUnderCoordinate: function(x, y) {
+	getViewUnderCoordinate: function(x, y) {
 		if(this.viewRectangle.contains(x, y)) {
 			if(this.childrenViews) {
-
+				var subView;
+				for (var i = 0; i < 2; i++) {
+					subView = this.childrenViews[i].getViewUnderCoordinate(x, y);
+					if(subView) return subView;
+				};
+			} else {
+				return this;
 			}
 		}
 	},
     onResize:function(width, height) {
-        this.camera.aspect = Global.aspectRatio;
-        this.camera.updateProjectionMatrix();
+        this.camera.aspect = this.viewRectangle.width/this.viewRectangle.height;
+		if(this.childrenViews) {
+			for (var i = 0; i < 2; i++) {
+				this.childrenViews[i].onResize(width, height);
+			}
+		} else {
+			console.log(this.camera.aspect);
+	        this.camera.updateProjectionMatrix();
+		}
     }
 });
 module.exports = SplittingSubView;

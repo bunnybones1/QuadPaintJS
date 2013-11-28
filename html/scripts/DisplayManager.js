@@ -10,6 +10,7 @@ var DisplayManager = new Class({
     splittingViewUI: null,
     initialize:function(values) {
         console.log("Initializing DisplayManager");
+        this.onResize = this.onResize.bind(this);
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         this.scene = new THREE.Scene();
         this.splittingView = new SplittingView(this.scene, this.renderer);
@@ -25,7 +26,7 @@ var DisplayManager = new Class({
         this.canvas = this.renderer.domElement;
         container.append(this.canvas);
 
-        this.splittingViewUI = new SplittingViewUI(container, this.canvas);
+        this.splittingViewUI = new SplittingViewUI(this.splittingView, this.canvas);
 
         //stats
         stats = new Stats();
@@ -50,7 +51,7 @@ var DisplayManager = new Class({
     onResize:function(width, height) {
         this.splittingView.onResize(width, height);
         console.log("resize");
-        this.splittingViewUI.onResize(width, height);
+        //this.splittingViewUI.onResize(width, height);
         //this.canvas.width = width;
         //this.canvas.height = height;
     }

@@ -10,7 +10,7 @@ var SplittingViewUI = new Class({
         $(this.canvas).on('click', this.onClick);
 	},
 	onClick:function(event) {
-		splittingView.splitUnderCoordinate(event.offsetX, event.offsetY);
+		console.log(this.splittingView.getViewUnderCoordinate(event.offsetX, event.offsetY));
 	},
     onResize:function(width, height) {
     }

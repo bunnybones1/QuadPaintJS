@@ -58,6 +58,13 @@ var Rectangle = new Class({
 	setPos:function(x, y) {
 		this.x = x;
 		this.y = y;
+	},
+	contains: function(x, y){
+		if(x < this.x) return false;
+		if(x > (this.x + this.width)) return false;
+		if(y < this.y) return false;
+		if(y > (this.y + this.height)) return false;
+		return true;
 	}
 });
 module.exports = Rectangle;

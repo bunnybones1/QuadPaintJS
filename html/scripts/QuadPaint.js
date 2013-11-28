@@ -10,7 +10,7 @@ var QuadPaint = new Class({
     initialize:function(values) {
         console.log("Initializing QuadPaint");
         this.displayManager = new DisplayManager();
-        Global.onResizeSignal.add(this.displayManager.onResize.bind(this.displayManager));
+        Global.onResizeSignal.add(this.displayManager.onResize);
         Global.onResize();
         //Global.onMouseMoveSignal.add(this.inputManager.onMouseMove.bind(this.inputManager));
     }
