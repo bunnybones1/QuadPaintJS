@@ -16,7 +16,8 @@ var TestFactory = new Class({
         console.log(lights);
         return lights;
     },
-    createBalls:function(total, totalColors) {
+    createBalls:function(total, totalColors, position, radius) {
+        radius = radius === undefined ? 50 : radius;
         var balls = [];
         var materials = [];
         var color = new THREE.Color(0xffffff);
@@ -32,10 +33,14 @@ var TestFactory = new Class({
             );
             materials.push(material);
         };
-        var geometry = new THREE.SphereGeometry(50, 32, 16);
+        if(!this.sphereGeometry) this.sphereGeometry = new THREE.SphereGeometry(radius, 32, 16);
         for (var i = total - 1; i >= 0; i--) {
-            var ball = new THREE.Mesh(geometry, materials[i%totalColors]);
-            this.randomizePosition(ball.position, 1000);
+            var ball = new THREE.Mesh(this.sphereGeometry, materials[i%totalColors]);
+            if(position) {
+                ball.position = position;
+            } else {
+                this.randomizePosition(ball.position, 1000);
+            }
             balls.push(ball);
         };
         return balls;
