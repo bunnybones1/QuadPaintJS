@@ -10,6 +10,8 @@ var DisplayManager = new Class({
     splittingViewUI: null,
     initialize:function(values) {
         console.log("Initializing DisplayManager");
+
+        this.addToScene = this.addToScene.bind(this);
         this.onResize = this.onResize.bind(this);
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         this.scene = new THREE.Scene();
@@ -27,7 +29,11 @@ var DisplayManager = new Class({
         container.append(this.canvas);
 
         this.splittingViewUI = new SplittingViewUI(this.splittingView, this.canvas);
-
+        var _this = this;
+        this.splittingViewUI.testPositionSignal.add(function(pos) {
+            _.each(TestFactory.createBalls(1, 1, pos, 10), _this.addToScene);
+            console.log("!");
+        });
         //stats
         stats = new Stats();
         container.append( stats.domElement );
