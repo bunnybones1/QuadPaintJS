@@ -26,11 +26,19 @@ var SplittingSubView = new Class({
 		this.camera.rotation.y+=.01;
 		this.camera.rotation.x = Math.sin(Global.now * .001 * this.randomSeed);
 		if(this.childrenViews) {
-			for (var i = this.childrenViews.length - 1; i >= 0; i--) {
+			for (var i = 0; i < 2; i++) {
 				this.childrenViews[i].render();
 			};
 		} else {
-            this.renderer.setViewport( ~~this.viewRectangle.x, ~~this.viewRectangle.y, ~~this.viewRectangle.width, ~~this.viewRectangle.height );
+			//the coordinates seem flipped on the y axis
+            //this.renderer.setViewport( ~~this.viewRectangle.x, ~~this.viewRectangle.y, ~~this.viewRectangle.width, ~~this.viewRectangle.height );
+            //flipping them back
+            this.renderer.setViewport(
+            	Math.round(this.viewRectangle.x), 
+            	Global.height-Math.round(this.viewRectangle.y) - Math.round(this.viewRectangle.height), 
+            	Math.round(this.viewRectangle.width), 
+            	Math.round(this.viewRectangle.height)
+            );
 	        this.renderer.render(this.scene, this.camera);
 		}
 	},
