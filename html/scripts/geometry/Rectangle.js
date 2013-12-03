@@ -16,6 +16,8 @@ var Rectangle = new Class({
 		this.y = y;
 		this.width = width;
 		this.height = height;
+		this.widthHalf = width * .5;
+		this.heightHalf = height * .5;
 	},
 	split:function(axis, fraction) {
 		this.axis = axis;
@@ -38,6 +40,8 @@ var Rectangle = new Class({
 	onResize:function(width, height) {
 		this.width = width;
 		this.height = height;
+		this.widthHalf = width * .5;
+		this.heightHalf = height * .5;
 		if(this.childrenRects) {
 			switch (this.axis) {
 				case "x":
@@ -65,6 +69,12 @@ var Rectangle = new Class({
 		if(y < this.y) return false;
 		if(y > (this.y + this.height)) return false;
 		return true;
+	},
+	getRelative:function(global) {
+		return {
+			x: (global.x - this.x) / this.widthHalf - 1,
+			y: (global.y - this.y) / this.heightHalf - 1
+		}
 	}
 });
 module.exports = Rectangle;

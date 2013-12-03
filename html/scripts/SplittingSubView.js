@@ -10,21 +10,25 @@ var SplittingSubView = new Class({
 	childrenViews: null,
 	viewRectangle: null,
 	randomSeed: 0,
+	rotateSpeed: .01,
+	fovCompensater: 1,
+	defaultFOV: 45,
+	cameraFOVMin: .0001,
+	cameraFOVMax: 150,
 	axis: "y",
-	initialize:function(scene, renderer, parentView, viewRectangle) {
+	initialize: function(scene, renderer, parentView, viewRectangle) {
 		this.scene = scene;
 		this.renderer = renderer;
 		this.axis = !parentView ? "x" : (parentView.axis == "x") ? "y" : "x";
 
-		this.camera = new THREE.PerspectiveCamera(45, Global.aspectRatio, 1, 10000);
+		this.camera = new THREE.PerspectiveCamera(this.defaultFOV, Global.aspectRatio, 1, 10000);
+		this.fovCompensater = this.camera.fov / this.defaultFOV;
 		this.scene.add(this.camera);
 		this.parentView = parentView;
 		this.viewRectangle = viewRectangle;
 		this.randomSeed = Math.random();
 	},
 	render: function() {
-		this.camera.rotation.y+=.01;
-		this.camera.rotation.x = Math.sin(Global.now * .001 * this.randomSeed);
 		if(this.childrenViews) {
 			for (var i = 0; i < 2; i++) {
 				this.childrenViews[i].render();
@@ -65,7 +69,7 @@ var SplittingSubView = new Class({
 			}
 		}
 	},
-    onResize:function(width, height) {
+    onResize: function(width, height) {
         this.camera.aspect = this.viewRectangle.width/this.viewRectangle.height;
 		if(this.childrenViews) {
 			for (var i = 0; i < 2; i++) {
@@ -75,6 +79,17 @@ var SplittingSubView = new Class({
 			console.log(this.camera.aspect);
 	        this.camera.updateProjectionMatrix();
 		}
+    },
+    zoom: function(factor) {
+    	this.camera.fov *= factor;
+    	this.camera.fov = Math.min(this.cameraFOVMax, Math.max(this.cameraFOVMin, this.camera.fov));
+		this.fovCompensater = this.camera.fov / this.defaultFOV;
+		this.camera.updateProjectionMatrix();
+    },
+    autoPan: function(mouse) {
+    	var rel = this.viewRectangle.getRelative(mouse);
+		this.camera.rotateX(-rel.y * this.rotateSpeed * this.fovCompensater);
+		this.camera.rotateY(-rel.x * this.rotateSpeed * this.fovCompensater);
     }
 });
 module.exports = SplittingSubView;
