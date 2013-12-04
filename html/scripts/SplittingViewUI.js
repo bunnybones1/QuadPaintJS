@@ -4,56 +4,62 @@ var Global = require('./Global');
 var SplittingViewUI = new Class({
 	splittingView: null,
 	projector: null,
-	mouse: null,
-	viewUnderMouse: null,
+	pen: null,
+	viewUnderPen: null,
 	initialize:function(splittingViewBase, canvas) {
 		this.splittingView = splittingViewBase;
 		this.canvas = canvas;
 		this.projector = new THREE.Projector();
-		this.onMouseDown = this.onMouseDown.bind(this);
-		this.onMouseUp = this.onMouseUp.bind(this);
-		this.onMouseMove = this.onMouseMove.bind(this);
+		this.onPenDown = this.onPenDown.bind(this);
+		this.onPenUp = this.onPenUp.bind(this);
+		this.onPenMove = this.onPenMove.bind(this);
+		this.onPenDrag = this.onPenDrag.bind(this);
 		this.onMouseWheel = this.onMouseWheel.bind(this);
 		this.update = this.update.bind(this);
-        $(this.canvas).on('mousedown', this.onMouseDown);
-        $(this.canvas).on('mouseup', this.onMouseUp);
-        $(this.canvas).on('mousemove', this.onMouseMove);
-        $(this.canvas).on('mousewheel', this.onMouseWheel);
         this.testPositionSignal = new signals.Signal();
-        this.mouse = {x:0, y:0};
+        this.pen = {x:0, y:0, pressure: 0};
 	},
-	onMouseDown:function(event) {
-		this.isMouseDown = true;
-		this.mouse.x = event.offsetX;
-		this.mouse.y = event.offsetY;
+	onPenDown:function(x, y) {
+		this.pen.x = x;
+		this.pen.y = y;
 		this.update();
 	},
-	onMouseMove:function(event) {
-		this.mouse.x = event.offsetX;
-		this.mouse.y = event.offsetY;
-		this.viewUnderMouse = this.splittingView.getViewUnderCoordinate(this.mouse.x, this.mouse.y);
+	onPenDrag:function(x, y, pressure) {
+		this.isPenDown = true;
+		this.pen.pressure = pressure;
+			console.log(this.pen.pressure);
+		this.updatePenAndView(x, y);
 	},
-	onMouseUp:function(event) {
-		this.isMouseDown = false;
+	onPenMove:function(x, y) {
+		this.updatePenAndView(x, y);
 	},
-	onMouseWheel:function(event) {
-		this.mouse.x = event.offsetX;
-		this.mouse.y = event.offsetY;
-		var zoomScale = 1 + event.originalEvent.deltaY * .001;
-		this.viewUnderMouse.zoom(zoomScale);
+	onPenUp:function(x, y) {
+		this.pen.pressure = 0;
+		this.isPenDown = false;
+	},
+	onMouseWheel:function(delta) {
+		var zoomScale = 1 + delta * .001;
+		this.viewUnderPen.zoom(zoomScale);
+	},
+	updatePenAndView:function(x, y) {
+		if(this.pen.x != x && this.pen.y != y) {
+			this.viewUnderPen = this.splittingView.getViewUnderCoordinate(x, y);
+			this.pen.x = x;
+			this.pen.y = y;
+		}
 	},
 	update:function() {
-		if(!this.viewUnderMouse) return;
-		this.viewUnderMouse.autoPan(this.mouse);
-		if(this.isMouseDown) {
+		if(!this.viewUnderPen) return;
+		this.viewUnderPen.autoPan(this.pen);
+		if(this.isPenDown) {
 			//clickedView.camera.rotation.set(0, 0, 0);
-			var bounds = this.viewUnderMouse.viewRectangle;
+			var bounds = this.viewUnderPen.viewRectangle;
 			var mouse3D = new THREE.Vector3();
-			mouse3D.x = ((this.mouse.x - bounds.x) / bounds.width) * 2 - 1;
-			mouse3D.y = -(((this.mouse.y - bounds.y) / bounds.height) * 2 - 1);
+			mouse3D.x = ((this.pen.x - bounds.x) / bounds.width) * 2 - 1;
+			mouse3D.y = -(((this.pen.y - bounds.y) / bounds.height) * 2 - 1);
 			mouse3D.z = .5;
 
-			this.projector.unprojectVector(mouse3D, this.viewUnderMouse.camera);
+			this.projector.unprojectVector(mouse3D, this.viewUnderPen.camera);
 
 			mouse3D.x *= 100;
 			mouse3D.y *= 100;
@@ -61,7 +67,7 @@ var SplittingViewUI = new Class({
 
 			//var ray = new THREE.Ray(camera.position, mouse3D.subSelf(camera.position).normalize());
 			//var intersects = ray.intersectObject(plane);
-			this.testPositionSignal.dispatch(mouse3D, this.viewUnderMouse.fovCompensater);
+			this.testPositionSignal.dispatch(mouse3D, this.viewUnderPen.fovCompensater * this.pen.pressure);
 		}
 	},
     onResize:function(width, height) {

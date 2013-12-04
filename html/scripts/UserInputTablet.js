@@ -7,17 +7,33 @@ var UserInputTablet = new Class({
 
 	onPenDownSignal: null,
 	onPenUpSignal: null,
+	onPenMoveSignal: null,
 	onPenDragSignal: null,
+	onPenHoverSignal: null,
+
+	onEraserDownSignal: null,
+	onEraserUpSignal: null,
+	onEraserDragSignal: null,
+	POINTER_TYPE_STYLUS: 1,
+	POINTER_TYPE_ERASER: 2,
 	initialize: function(userInputMouse) {
 		this.userInputMouse = userInputMouse || new UserInputMouse();
 
 		this.onPenDownSignal = new signals.Signal();
 		this.onPenUpSignal = new signals.Signal();
+		this.onPenMoveSignal = new signals.Signal();
 		this.onPenDragSignal = new signals.Signal();
+		this.onPenHoverSignal = new signals.Signal();
+
+		this.onEraserDownSignal = new signals.Signal();
+		this.onEraserUpSignal = new signals.Signal();
+		this.onEraserDragSignal = new signals.Signal();
 
 		this.penDown = this.penDown.bind(this);
 		this.penUp = this.penUp.bind(this);
 		this.penDrag = this.penDrag.bind(this);
+		this.penHover = this.penHover.bind(this);
+		this.penMove = this.penMove.bind(this);
 
 		this.wacomPlugin = this.getWacomPlugin();
 		var loadVersion = this.isPluginLoaded();
@@ -26,6 +42,9 @@ var UserInputTablet = new Class({
 
 			this.userInputMouse.onMouseDownSignal.add(this.penDown);
 			this.userInputMouse.onMouseUpSignal.add(this.penUp);
+			this.userInputMouse.onMouseDragSignal.add(this.penDrag);
+			this.userInputMouse.onMouseMoveSignal.add(this.penMove);
+			this.userInputMouse.onMouseHoverSignal.add(this.penHover);
 		} else {
 			alert("webplugin is NOT Loaded (or undiscoverable). Emulating tablet with a mouse.");
 			//TODO
@@ -34,6 +53,7 @@ var UserInputTablet = new Class({
 	},
 
 	getWacomPlugin: function() {
+		console.log(document.getElementById('wtPlugin'));
 		return document.getElementById('wtPlugin');
     },
 
@@ -49,20 +69,36 @@ var UserInputTablet = new Class({
     },
 
 	penDown: function(x, y) {
-		console.log("penDown");
+		//console.log("penDown");
+		this.isDown = true;
 		this.userInputMouse.onMouseMoveSignal.add(this.penDrag);
 		this.onPenDownSignal.dispatch(x, y);
 	},
 
 	penUp: function(x, y) {
-		console.log("penUp");
+		//console.log("penUp");
+		this.isDown = false;
 		this.userInputMouse.onMouseMoveSignal.remove(this.penDrag);
 		this.onPenUpSignal.dispatch(x, y);
 	},
 	
+	penMove: function(x, y) {
+		//console.log("penMove");
+		this.onPenMoveSignal.dispatch(x, y);
+	},
+
 	penDrag: function(x, y) {
-		console.log("penDrag", this.wacomPlugin.penAPI.pointerType, this.wacomPlugin.penAPI.isWacom, this.wacomPlugin.penAPI.pressure);
-		this.onPenDragSignal.dispatch(x, y);
+		//console.log("penDrag");
+		this.onPenDragSignal.dispatch(x, y, this.isDown ? this.wacomPlugin.penAPI.pressure : 0);
+		//if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_STYLUS) this.onPenDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
+		//else if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_ERASER) this.onEraserDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
+	},
+
+	penHover: function(x, y) {
+		//console.log("penHover");
+		this.onPenHoverSignal.dispatch(x, y);
+		//if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_STYLUS) this.onPenDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
+		//else if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_ERASER) this.onEraserDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 	}
 });
 module.exports = UserInputTablet;

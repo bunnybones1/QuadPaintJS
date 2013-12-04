@@ -4,12 +4,17 @@ var UserInputMouse = new Class({
 	onMouseDownSignal: null,
 	onMouseUpSignal: null,
 	onMouseMoveSignal: null,
+	onMouseHoverSignal: null,
+	onMouseDragSignal: null,
 	onMouseWheelSignal: null,
 	onMouseOutSignal: null,
+	isMouseDown: false,
 	initialize:function(){
 		this.onMouseDownSignal = new signals.Signal();
 		this.onMouseUpSignal = new signals.Signal();
 		this.onMouseMoveSignal = new signals.Signal();
+		this.onMouseHoverSignal = new signals.Signal();
+		this.onMouseDragSignal = new signals.Signal();
 		this.onMouseWheelSignal = new signals.Signal();
 		this.onMouseOutSignal = new signals.Signal();
 		this.start();
@@ -24,6 +29,22 @@ var UserInputMouse = new Class({
 	stop: function(){
 		window.alert("can't stop the mouse! TODO");
 	},
+	_onMouseDown: function(event) {
+		if (!event) event = window.event; // IE does not pass evt as a parameter.
+		this.isMouseDown = true;
+		this.onMouseDownSignal.dispatch(event.pageX, event.pageY);
+	},
+	_onMouseUp: function(event) {
+		if (!event) event = window.event; // IE does not pass evt as a parameter.
+		this.isMouseDown = false;
+		this.onMouseUpSignal.dispatch(event.pageX, event.pageY);
+	},
+	_onMouseMove: function(event) {
+		if (!event) event = window.event; // IE does not pass evt as a parameter.
+		this.onMouseMoveSignal.dispatch(event.pageX, event.pageY);
+		if(this.isMouseDown) this.onMouseDragSignal.dispatch(event.pageX, event.pageY);
+		else this.onMouseHoverSignal.dispatch(event.pageX, event.pageY);
+	},
 	_onMouseWheel: function(event) {
 		if (!event) event = window.event; // IE does not pass evt as a parameter.
 	    var scrollTo = 0;
@@ -35,23 +56,10 @@ var UserInputMouse = new Class({
 	    }
 		this.onMouseWheelSignal.dispatch(scrollTo);
 	},
-	_onMouseMove: function(event) {
-		if (!event) event = window.event; // IE does not pass evt as a parameter.
-		this.onMouseMoveSignal.dispatch(event.pageX, event.pageY);
-	},
 	_onMouseOut: function(event){
 		if (!event) event = window.event; // IE does not pass evt as a parameter.
-		this.width = window.innerWidth;
-		this.height = window.innerHeight;
 		this.onMouseOutSignal.dispatch(event.pageX, event.pageY);
-	},
-	_onMouseDown: function(event) {
-		if (!event) event = window.event; // IE does not pass evt as a parameter.
-		this.onMouseDownSignal.dispatch(event.pageX, event.pageY);
-	},
-	_onMouseUp: function(event) {
-		if (!event) event = window.event; // IE does not pass evt as a parameter.
-		this.onMouseUpSignal.dispatch(event.pageX, event.pageY);
-	},
+		this._onMouseUp(event);
+	}
 })
 module.exports = UserInputMouse;
