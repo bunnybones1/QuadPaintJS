@@ -40,3 +40,16 @@ Features:
 	Painting Data
 		Stroke Data Stream
 
+DEVELOPMENT
+-----------
+Uses beefy for development, so:
+run grunt then go to localHost:9966
+
+
+BUILD WITH BROWSERIFY
+---------------------
+
+```
+browserify html/scripts/main.js > html/scripts/mainStatic.js
+```
+
