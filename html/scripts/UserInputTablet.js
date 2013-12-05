@@ -16,6 +16,9 @@ var UserInputTablet = new Class({
 	onEraserDragSignal: null,
 	POINTER_TYPE_STYLUS: 1,
 	POINTER_TYPE_ERASER: 2,
+
+	pressureValidationArraySize: 3,
+	pressureValidationArray: null,
 	initialize: function(userInputMouse) {
 		this.userInputMouse = userInputMouse || new UserInputMouse();
 
@@ -50,6 +53,8 @@ var UserInputTablet = new Class({
 			//TODO
 			return;
 		}
+
+		this.pressureValidationArray = [];
 	},
 
 	getWacomPlugin: function() {
@@ -89,7 +94,7 @@ var UserInputTablet = new Class({
 
 	penDrag: function(x, y) {
 		//console.log("penDrag");
-		this.onPenDragSignal.dispatch(x, y, this.isDown ? this.wacomPlugin.penAPI.pressure : 0);
+		this.onPenDragSignal.dispatch(x, y,this.validatePressureIsAnalog(this.wacomPlugin.penAPI.pressure) ? this.wacomPlugin.penAPI.pressure : 1);
 		//if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_STYLUS) this.onPenDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 		//else if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_ERASER) this.onEraserDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 	},
@@ -99,6 +104,14 @@ var UserInputTablet = new Class({
 		this.onPenHoverSignal.dispatch(x, y);
 		//if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_STYLUS) this.onPenDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 		//else if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_ERASER) this.onEraserDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
+	},
+	validatePressureIsAnalog: function(pressure) {
+		this.pressureValidationArray.unshift(pressure);
+		if(this.pressureValidationArray.length > this.pressureValidationArraySize) this.pressureValidationArray.pop();
+		for (var i = this.pressureValidationArray.length - 1; i >= 0; i--) {
+			if(this.pressureValidationArray[i] != pressure) return true;
+		};
+		return false;
 	}
 });
 module.exports = UserInputTablet;
