@@ -17,8 +17,8 @@ var UserInputTablet = new Class({
 	POINTER_TYPE_STYLUS: 1,
 	POINTER_TYPE_ERASER: 2,
 
-	pressureValidationArraySize: 3,
-	pressureValidationArray: null,
+	//pressureValidationArraySize: 3,
+	//pressureValidationArray: null,
 	initialize: function(userInputMouse) {
 		this.userInputMouse = userInputMouse || new UserInputMouse();
 
@@ -50,11 +50,12 @@ var UserInputTablet = new Class({
 			this.userInputMouse.onMouseHoverSignal.add(this.penHover);
 		} else {
 			alert("webplugin is NOT Loaded (or undiscoverable). Emulating tablet with a mouse.");
+			this.wacomPlugin = {penAPI:{pressure:1}};
 			//TODO
 			return;
 		}
 
-		this.pressureValidationArray = [];
+		//this.pressureValidationArray = [];
 	},
 
 	getWacomPlugin: function() {
@@ -94,7 +95,7 @@ var UserInputTablet = new Class({
 
 	penDrag: function(x, y) {
 		//console.log("penDrag");
-		this.onPenDragSignal.dispatch(x, y,this.validatePressureIsAnalog(this.wacomPlugin.penAPI.pressure) ? this.wacomPlugin.penAPI.pressure : 1);
+		this.onPenDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 		//if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_STYLUS) this.onPenDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 		//else if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_ERASER) this.onEraserDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 	},
@@ -105,6 +106,7 @@ var UserInputTablet = new Class({
 		//if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_STYLUS) this.onPenDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 		//else if(this.wacomPlugin.penAPI.pointerType == this.POINTER_TYPE_ERASER) this.onEraserDragSignal.dispatch(x, y, this.wacomPlugin.penAPI.pressure);
 	},
+	//this doesn't really work, anyways it's pointless. Wacom users should just draw with their tablet, not their mouse.
 	validatePressureIsAnalog: function(pressure) {
 		this.pressureValidationArray.unshift(pressure);
 		if(this.pressureValidationArray.length > this.pressureValidationArraySize) this.pressureValidationArray.pop();
