@@ -18,6 +18,7 @@ var TestFactory = new Class({
         return lights;
     },
     createBalls:function(total, totalColors, position, radius) {
+        if(radius == 0) return;
         radius = radius === undefined ? 50 : radius;
         var balls = [];
         var materials = [];
