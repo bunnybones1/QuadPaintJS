@@ -6,6 +6,7 @@ var SplittingViewUI = new Class({
 	projector: null,
 	pen: null,
 	viewUnderPen: null,
+	spacingThreshold: .1,
 	initialize:function(splittingViewBase, canvas) {
 		this.splittingView = splittingViewBase;
 		this.canvas = canvas;
@@ -27,7 +28,6 @@ var SplittingViewUI = new Class({
 	onPenDrag:function(x, y, pressure) {
 		this.isPenDown = true;
 		this.pen.pressure = pressure;
-			console.log(this.pen.pressure);
 		this.updatePenAndView(x, y);
 	},
 	onPenMove:function(x, y) {
@@ -54,20 +54,37 @@ var SplittingViewUI = new Class({
 		if(this.isPenDown) {
 			//clickedView.camera.rotation.set(0, 0, 0);
 			var bounds = this.viewUnderPen.viewRectangle;
-			var mouse3D = new THREE.Vector3();
-			mouse3D.x = ((this.pen.x - bounds.x) / bounds.width) * 2 - 1;
-			mouse3D.y = -(((this.pen.y - bounds.y) / bounds.height) * 2 - 1);
-			mouse3D.z = .5;
+			var screenMouse = new THREE.Vector3();
+			screenMouse.x = ((this.pen.x - bounds.x) / bounds.width) * 2 - 1;
+			screenMouse.y = -(((this.pen.y - bounds.y) / bounds.height) * 2 - 1);
+			screenMouse.z = .5;
 
-			this.projector.unprojectVector(mouse3D, this.viewUnderPen.camera);
+			var worldMouse = screenMouse.clone();
+			this.projector.unprojectVector(worldMouse, this.viewUnderPen.camera);
 
-			mouse3D.x *= 100;
-			mouse3D.y *= 100;
-			mouse3D.z *= 100;
+			if(!this.lastWorldMouse) {
+				this.lastWorldMouse = worldMouse.clone();
+			} 
 
-			//var ray = new THREE.Ray(camera.position, mouse3D.subSelf(camera.position).normalize());
-			//var intersects = ray.intersectObject(plane);
-			this.testPositionSignal.dispatch(mouse3D, this.viewUnderPen.fovCompensater * this.pen.pressure);
+			var lastScreenMouse = this.lastWorldMouse.clone();
+			this.projector.projectVector(lastScreenMouse, this.viewUnderPen.camera);
+
+
+
+			var length = Math.sqrt(Math.pow(screenMouse.x - lastScreenMouse.x, 2) + Math.pow(screenMouse.y - lastScreenMouse.y, 2));
+			if (length > this.spacingThreshold) {
+				var targetPosition = worldMouse.clone();
+
+				targetPosition.x *= 100;
+				targetPosition.y *= 100;
+				targetPosition.z *= 100;
+
+				//var ray = new THREE.Ray(camera.position, mouse3D.subSelf(camera.position).normalize());
+				//var intersects = ray.intersectObject(plane);
+				this.testPositionSignal.dispatch(targetPosition, this.viewUnderPen.fovCompensater * this.pen.pressure);
+				this.lastWorldMouse = worldMouse;
+			}
+
 		}
 	},
     onResize:function(width, height) {
