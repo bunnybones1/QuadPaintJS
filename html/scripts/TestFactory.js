@@ -14,7 +14,6 @@ var TestFactory = new Class({
             this.randomizePosition(light.position, 10000);
             lights.push(light);
         };
-        console.log(lights);
         return lights;
     },
     createBalls:function(total, totalColors, position, radius) {
