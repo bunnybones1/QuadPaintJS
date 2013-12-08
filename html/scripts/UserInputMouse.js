@@ -8,7 +8,7 @@ var UserInputMouse = new Class({
 	onMouseDragSignal: null,
 	onMouseWheelSignal: null,
 	onMouseOutSignal: null,
-	isMouseDown: false,
+	isDown: false,
 	initialize:function(){
 		this.onMouseDownSignal = new signals.Signal();
 		this.onMouseUpSignal = new signals.Signal();
@@ -31,18 +31,18 @@ var UserInputMouse = new Class({
 	},
 	_onMouseDown: function(event) {
 		if (!event) event = window.event; // IE does not pass evt as a parameter.
-		this.isMouseDown = true;
+		this.isDown = true;
 		this.onMouseDownSignal.dispatch(event.pageX, event.pageY);
 	},
 	_onMouseUp: function(event) {
 		if (!event) event = window.event; // IE does not pass evt as a parameter.
-		this.isMouseDown = false;
+		this.isDown = false;
 		this.onMouseUpSignal.dispatch(event.pageX, event.pageY);
 	},
 	_onMouseMove: function(event) {
 		if (!event) event = window.event; // IE does not pass evt as a parameter.
 		this.onMouseMoveSignal.dispatch(event.pageX, event.pageY);
-		if(this.isMouseDown) this.onMouseDragSignal.dispatch(event.pageX, event.pageY);
+		if(this.isDown) this.onMouseDragSignal.dispatch(event.pageX, event.pageY);
 		else this.onMouseHoverSignal.dispatch(event.pageX, event.pageY);
 	},
 	_onMouseWheel: function(event) {
@@ -59,7 +59,7 @@ var UserInputMouse = new Class({
 	_onMouseOut: function(event){
 		if (!event) event = window.event; // IE does not pass evt as a parameter.
 		this.onMouseOutSignal.dispatch(event.pageX, event.pageY);
-		this._onMouseUp(event);
+		//this._onMouseUp(event);
 	}
 })
 module.exports = UserInputMouse;
