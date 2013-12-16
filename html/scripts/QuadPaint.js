@@ -14,6 +14,8 @@ var QuadPaint = new Class({
 	brushStrokes: null,
 	orbits: null,
 	orbitSpeed: .01,
+	skipFrames:0,
+	skipFrameCounter:0,
 	initialize:function() {
 		console.log("Initializing QuadPaint");
 		this.addToScene = this.addToScene.bind(this);
@@ -86,6 +88,12 @@ var QuadPaint = new Class({
 	},
 	animate: function() {
 		requestAnimationFrame(this.animate);
+		if(this.skipFrames > this.skipFrameCounter) {
+			this.skipFrameCounter++;
+			return;
+		}else{
+			this.skipFrameCounter = 0;
+		}
 		Global.now = new Date().getTime() - Global.startTime;
 
 		this.userInputManager.userInputTablet.update();

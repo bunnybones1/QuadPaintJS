@@ -1,5 +1,5 @@
 var Class = require('./class/Class');
-var BrushStrokeBalls = require('./BrushStrokeBalls');
+var BrushStrokeGeom = require('./BrushStrokeGeom');
 var BrushCursor = require('./BrushCursor');
 
 var PaintBrush = new Class({
@@ -21,6 +21,7 @@ var PaintBrush = new Class({
         this.projector = new THREE.Projector();
         this.onPenDown = this.onPenDown.bind(this);
         this.onPenDrag = this.onPenDrag.bind(this);
+        this.newBrushStroke = this.newBrushStroke.bind(this);
         this.onPenUp = this.onPenUp.bind(this);
         this.onPenPressureChange = this.onPenPressureChange.bind(this);
         this.onCreateBrushStrokeSignal = new signals.Signal();
@@ -29,15 +30,19 @@ var PaintBrush = new Class({
     onPenDown: function(x, y) {
         this.updateWorldMouse(x, y);
         this.cursor.updatePosition(this.worldBrushPosition, 0);
-        this.brushStroke = new BrushStrokeBalls();
+        if(!this.brushStroke) this.newBrushStroke();
+    },
+    newBrushStroke: function() {
+        if(this.brushStroke) this.brushStroke.onStrokeFullSignal.remove(this.newBrushStroke);
+        this.brushStroke = new BrushStrokeGeom();
         this.brushStroke.attemptToAdd(this.worldBrushPosition, 0);
         this.onCreateBrushStrokeSignal.dispatch(this.brushStroke.display);
+        this.brushStroke.onStrokeFullSignal.add(this.newBrushStroke);
     },
     onPenUp: function(x, y) {
         this.updateWorldMouse(x, y);
         this.cursor.updatePosition(this.worldBrushPosition, 0);
         if(this.brushStroke) this.brushStroke.finalize(this.worldBrushPosition);
-        delete this.brushStroke;
     },
     onPenDrag: function(x, y) {
         this.updateWorldMouse(x, y);

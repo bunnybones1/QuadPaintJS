@@ -4,8 +4,8 @@ var TestFactory = require('./TestFactory');
 
 var BrushStrokeBalls = new Class({
     Extends: BrushStrokeBase,
-    initialize:function() {
-        this.parent();
+    initialize:function(paintBrush) {
+        this.parent(paintBrush);
     },
     start:function() {
         this.display = new THREE.Object3D();

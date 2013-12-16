@@ -2,10 +2,12 @@ var Class = require('./class/Class');
 var TestFactory = require('./TestFactory');
 
 var BrushStrokeBase = new Class({
+    paintBrush: null,
     display: null,
     spacingThreshold: 10,
     overallSpacingThreshold: .1,
-    initialize:function() {
+    initialize:function(paintBrush) {
+        this.paintBrush = paintBrush;
         this.start();
     },
     start:function() {
