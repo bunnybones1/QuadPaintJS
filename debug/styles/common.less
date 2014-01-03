@@ -1,0 +1,37 @@
+@import 'prefixer.less';
+
+html {
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    background: #107f00;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+	position:relative;
+	top:0;
+	right:0;
+	bottom:0;
+	left:0;
+}
+
+#threejsCanvas {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+#wtPlugin {
+	position: absolute;
+	visibility: hidden;
+}
+
+#stats { position: absolute; top:0; left: 0 }
+#stats #fps { background: transparent !important }
+#stats #fps #fpsText { color: #777 !important }
+#stats #fps #fpsGraph { display: none }

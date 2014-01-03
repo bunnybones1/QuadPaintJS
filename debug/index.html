@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>QuadPaintJS</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=1.0" />
+	<link rel="stylesheet/less" href="styles/main.less" /> <!--  main.less -->
+	<!-- <link rel="stylesheet" href="styles/main.css" /> main.css -->
+    <script src="scripts/vendor/less-1.4.1.min.js" type="text/javascript"></script> <!--  -->
+</head>
+<body>
+	<div id="container"></div>
+	<div id="preloaderTiny"></div>
+	<canvas id="threejsCanvas" tabindex='0'></canvas>
+    <object id="wtPlugin" type="application/x-wacomtabletplugin">
+          <param name="onload" value="pluginLoaded" />
+    </object>
+	<script data-main="scripts/main" src="scripts/vendor/require.js"></script>
+</body>
+</html>
