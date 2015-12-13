@@ -21,6 +21,8 @@ define([
 			this.onMouseWheel = this.onMouseWheel.bind(this);
 			this.animate = this.animate.bind(this);
 	        this.pen = {x:0, y:0, pressure: 0};
+	        this.autoZoom = 0.5;
+	        this.zoomSpeed = 0.05;
 		},
 		onPenDown:function(x, y) {
 			this.pen.x = x;
@@ -39,8 +41,8 @@ define([
 			this.isPenDown = false;
 		},
 		onMouseWheel:function(delta) {
-			var zoomScale = 1 + delta * .001;
-			this.viewUnderPen.zoom(zoomScale);
+			var zoomScale = 1 + delta * 0.001;
+			if(this.viewUnderPen) this.viewUnderPen.zoom(zoomScale);
 		},
 		updatePenAndView:function(x, y) {
 			if(this.pen.x != x && this.pen.y != y) {
@@ -52,6 +54,7 @@ define([
 		animate:function() {
 			if(!this.viewUnderPen) return;
 			this.viewUnderPen.autoPan(this.pen);
+			this.viewUnderPen.zoom(1 - (this.autoZoom - 0.5) * this.zoomSpeed);
 		},
 	    onResize:function(width, height) {
 	    }

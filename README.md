@@ -7,43 +7,43 @@ A performance-oriented painting experience guides the development of this projec
 The desired hardware to implement control will be a Wacom tablet and Korg Nanos.
 This is based on an old program written in java.
 
-Features:
+Features
+--------
+- [x] Wacom support (Bamboo, Intuos)
+- [ ] USB MIDI controller support (Browser Plugin)
+- [x] Paint strokes made from basic GL Strips
+- [x] Strokes are store in 2D cartesian space but rendered in spherical coordinate system
+- [x] Chronological layering
+- [x] GL blend modes per stroke
+- [ ] Sphere Vertex Shader
+- [ ] Deluxe Sphere Vertex Shader that support realtime animation
+- [x] Vertex Stream Channels
+	1	R   Red
+	1	G   Blue
+	1	B   Green
+	1	A   Alpha
+	2	XY  CenterCoordinate (XY)
+	1   Z   Depth (Z)
+	1	Th  Thickness
+	1	Ss  Sin Speed
+	1	Sa  Sin Amplitude
+	1	Ja  Jitter Amplitude
+	1	Bt  Birth Time
 
-    Wacom support (Bamboo)
-    USB MIDI controller support (Browser Plugin)
-    Paint strokes made from basic GL Strips
-    Strokes are store in 2D cartesian space but rendered in spherical coordinate system
-    Chronological layering
-    GL blend modes per stroke
-    Sphere Vertex Shader
-    Deluxe Sphere Vertex Shader that support realtime animation
-    Vertex Stream Channels
-    	1	R   Red
-		1	G   Blue
-		1	B   Green
-		1	A   Alpha
-		2	XY  CenterCoordinate (XY)
-		1   Z   Depth (Z)
-		1	Th  Thickness
-		1	Ss  Sin Speed
-		1	Sa  Sin Amplitude
-		1	Ja  Jitter Amplitude
-		1	Bt  Birth Time
 
+	12		Total
 
-		12		Total
+Stroke Data
+	Vertex Stream
+	Blendmode
 
-	Stroke Data
-		Vertex Stream
-		Blendmode
-
-	Painting Data
-		Stroke Data Stream
+Painting Data
+	Stroke Data Stream
 
 DEVELOPMENT
 -----------
-Uses beefy for development, so:
-run grunt then go to localHost:9966
+Uses grunt for development, so:
+run grunt then go to localHost:9001
 
 
 BUILD WITH BROWSERIFY

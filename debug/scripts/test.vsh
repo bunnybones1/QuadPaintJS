@@ -1,4 +1,5 @@
 uniform float time;
+uniform float brightness;
 
 attribute vec4 rgba;
 attribute vec3 custom;
@@ -6,7 +7,7 @@ attribute vec3 custom;
 varying vec4 vrgba;
 
 void main() {
-	vrgba = rgba;
+	vrgba = rgba * vec4(brightness, brightness, brightness, 1.0);
 	vec4 mvPosition = modelViewMatrix * vec4(position, 1.0 );
 	float relTime = time - custom.x;
 	vec4 wave = vec4(

@@ -39,18 +39,18 @@ define([
 		_onMouseDown: function(event) {
 			if (!event) event = window.event; // IE does not pass evt as a parameter.
 			this.isDown = true;
-			this.onMouseDownSignal.dispatch(event.pageX * Global.devicePixelRatio, event.pageY * Global.devicePixelRatio);
+			this.onMouseDownSignal.dispatch(event.pageX, event.pageY);
 		},
 		_onMouseUp: function(event) {
 			if (!event) event = window.event; // IE does not pass evt as a parameter.
 			this.isDown = false;
-			this.onMouseUpSignal.dispatch(event.pageX * Global.devicePixelRatio, event.pageY * Global.devicePixelRatio);
+			this.onMouseUpSignal.dispatch(event.pageX, event.pageY);
 		},
 		_onMouseMove: function(event) {
 			if (!event) event = window.event; // IE does not pass evt as a parameter.
-			this.onMouseMoveSignal.dispatch(event.pageX * Global.devicePixelRatio, event.pageY * Global.devicePixelRatio);
-			if(this.isDown) this.onMouseDragSignal.dispatch(event.pageX * Global.devicePixelRatio, event.pageY * Global.devicePixelRatio);
-			else this.onMouseHoverSignal.dispatch(event.pageX * Global.devicePixelRatio, event.pageY * Global.devicePixelRatio);
+			this.onMouseMoveSignal.dispatch(event.pageX, event.pageY);
+			if(this.isDown) this.onMouseDragSignal.dispatch(event.pageX, event.pageY);
+			else this.onMouseHoverSignal.dispatch(event.pageX, event.pageY);
 		},
 		_onMouseWheel: function(event) {
 			if (!event) event = window.event; // IE does not pass evt as a parameter.
@@ -65,7 +65,7 @@ define([
 		},
 		_onMouseOut: function(event){
 			if (!event) event = window.event; // IE does not pass evt as a parameter.
-			this.onMouseOutSignal.dispatch(event.pageX * Global.devicePixelRatio, event.pageY * Global.devicePixelRatio);
+			this.onMouseOutSignal.dispatch(event.pageX, event.pageY);
 			//this._onMouseUp(event);
 		}
 	})

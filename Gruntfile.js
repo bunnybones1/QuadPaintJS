@@ -1,3 +1,4 @@
+
 module.exports = function(grunt) {
 	
 	var FS_PATH = require('path');
@@ -25,7 +26,7 @@ module.exports = function(grunt) {
 	                'mongod --dbpath database/db'
 	            ].join('&&'),
 		        options: {
-		            //async: true,
+		            async: true,
 		            stdout: true,
 		            stderr: true,
 		            callback: log

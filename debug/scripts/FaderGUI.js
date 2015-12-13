@@ -33,7 +33,7 @@ define([
 			this.outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
 			
 
-			var fillGeometry = new THREE.PlaneGeometry(width-4, height-4);
+			var fillGeometry = new THREE.PlaneGeometry(width, height);
 			var fillMaterial = new THREE.MeshBasicMaterial(
 				{
 					color:colorObj.getHex(),
@@ -44,8 +44,8 @@ define([
 			this.fill = new THREE.Mesh(fillGeometry, fillMaterial);
 			this.fillPivot = new THREE.Object3D();
 			this.fillPivot.add(this.fill);
-			this.fill.position.y += (height - 4) * .5;
-			this.fillPivot.position.y -= (height - 4) * .5;
+			this.fill.position.y += (height) * .5;
+			this.fillPivot.position.y -= (height) * .5;
 			BlendUtils.jumpCuratedFloat(outlineMaterial, 1);
 
 			this.display = new THREE.Object3D();

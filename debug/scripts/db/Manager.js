@@ -13,11 +13,13 @@ define([
 			this.promptLoad = this.promptLoad.bind(this);
 			this.saveStroke = this.saveStroke.bind(this);
 			this.load = this.load.bind(this);
-			this.loadStrokes = this.loadStrokes.bind(this);
+			this.loadNextStroke = this.loadNextStroke.bind(this);
 			this.onStrokeLoadedSignal = new signals.Signal();
+			this.onEmptySceneSignal = new signals.Signal();
 		},
 		begin: function (overrideMessage) {
-			var name = window.prompt(overrideMessage ? overrideMessage : "Name painting.", "default");
+			var name = Global.urlParams.painting;
+			if(!name) name = window.prompt(overrideMessage ? overrideMessage : "Name painting.", "default");
 			if(name) this.load(name);
 			else this.begin("No, really. You can't start until you ateast name your painting.");
 		},
@@ -34,28 +36,51 @@ define([
 				console.log( "load painting success" );
 				_this.strokeCursor = 0;
 				_this.strokeCursorTotal = _this.paintingJSON.length;
-				_this.loadStrokes();
+				if(_this.strokeCursorTotal > 0) {
+					_this.loadNextStroke();
+				} else {
+					_this.onEmptySceneSignal.dispatch();
+				}
 			})
 			.fail(function() {
 				console.log( "load painting error" );
 			})
 		},
-		loadStrokes: function() {
+		loadNextStroke: function() {
 			var _this = this;
 			var jqxhr = $.get( "load/" + this.paintingName + "/" + this.paintingJSON[this.strokeCursor]._id)
 			.done(function() {
 				console.log( "load stroke success" );
-				_this.onStrokeLoadedSignal.dispatch(jqxhr.responseJSON[0]);
+				var data = jqxhr.responseJSON[0];
+				var buffers = data.buffers;
+				var i;
+				if(buffers.position !== undefined) {
+					buffers.totalTriangles = Number(buffers.totalTriangles);
+					if(isNaN(buffers.totalTriangles)) {
+						console.log('hotfix triangle count');
+						buffers.totalTriangles = (buffers.position.length / 3) - 2;
+					}
+					buffers.blendModeCurated = Number(buffers.blendModeCurated);
+					for (i = 0; i < buffers.custom.length; i++) {
+						buffers.custom[i] = Number(buffers.custom[i]);
+					}
+					for (i = 0; i < buffers.position.length; i++) {
+						buffers.position[i] = Number(buffers.position[i]);
+					}
+					for (i = 0; i < buffers.rgba.length; i++) {
+						buffers.rgba[i] = Number(buffers.rgba[i]);
+					}
+					_this.onStrokeLoadedSignal.dispatch(data);
+				}
 				_this.strokeCursor++;
-				if(_this.strokeCursor < _this.strokeCursorTotal) _this.loadStrokes();
-				else console.log("all strokes load complete.")
+				if(_this.strokeCursor < _this.strokeCursorTotal) _this.loadNextStroke();
+				else console.log("all strokes load complete.");
 			})
 			.fail(function() {
 				console.log( "load stroke error" );
-			})
+			});
 		},
 		saveStroke: function(stroke) {
-			var total = 200;
 			var data = {
 				position: stroke.geometry.attributes.position.array,
 				rgba: stroke.geometry.attributes.rgba.array,

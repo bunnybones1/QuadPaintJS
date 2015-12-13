@@ -34,7 +34,6 @@ define([
 			this.splittingView.render();
 		},
 		onResize:function(width, height) {
-			console.log("!");
 			this.splittingView.viewRectangle.onResize(Global.widthPixelCorrect, Global.heightPixelCorrect);
 			this.splittingView.onResize(width, height);
 		}

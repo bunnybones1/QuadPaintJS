@@ -22,6 +22,12 @@ define([
 		marginY: 55,
 		initialize:function(renderer) {
 			console.log("Initializing GUIManager");
+			var guiScale = 0.25;
+			this.faderWidth *= guiScale;
+			this.faderHeight *= guiScale;
+			this.faderSpacer *= guiScale;
+			this.marginY *= guiScale;
+			this.marginX *= guiScale;
 			this.renderer = renderer;
 			this.camera = new THREE.OrthographicCamera(Global.width / - 2, Global.width / 2, Global.height / 2, Global.height / - 2, - 2000, 1000 );
 			this.scene = new THREE.Scene();

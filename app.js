@@ -4,6 +4,7 @@ var monk = require('monk');
 var db =  monk('localhost:27017/test');
 var app = new express();
 
+console.log("init app.js");
 app.use(express.static(__dirname + '/debug'));
 app.use(express.bodyParser());
 app.get('/',function(req,res){
@@ -14,27 +15,39 @@ app.get('/',function(req,res){
 app.get('/list',function(req,res){
 	db.driver.collectionNames(function(e,names){
 		res.json(names);
-	})
+	});
 });
 app.get('/load/:name',function(req,res){
 	var collection = db.get(req.params.name);
-	collection.find({},{},function(e,docs){
+	console.log('Someone requested painting:', req.params.name);
+	collection.find({
+		"buffers" : { "$exists" : true}
+	},{
+		"buffers": 0,
+	},function(e,docs){
+		docs.forEach(function(doc) {
+			if(doc.buffers) {
+				console.log('projection failed. Manually removing buffer from response.')
+				delete doc.buffers;
+			}
+		});
+		console.log('sending:', docs);
 		res.json(docs);
-	})
+	});
 });
 app.get('/load/:name/:id',function(req,res){
 	var collection = db.get(req.params.name);
 	collection.find({_id:req.params.id},{},function(e,docs){
 		res.json(docs);
-	})
+	});
 });
 
 app.post('/save/:name',function(req,res){
-	console.log(req.body);
+	//console.log(req.body);
 	var collection = db.get(req.params.name);
 	collection.insert({
 		buffers:req.body
-	})
+	});
 	res.json({status: 'OK'});
 });
 

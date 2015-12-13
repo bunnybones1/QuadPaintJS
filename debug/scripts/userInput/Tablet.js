@@ -14,6 +14,10 @@ define([
 		usingPhysicalTablet: false,
 		pressure: 0.1,
 		lastPressure: 0.1,
+		tiltX: 0,
+		lastTiltX: 0,
+		tiltY: 0,
+		lastTiltY: 0,
 		userInputMouse: null,
 
 		onPenDownSignal: null,
@@ -22,6 +26,7 @@ define([
 		onPenDragSignal: null,
 		onPenHoverSignal: null,
 		onPenPressureChangeSignal: null,
+		onPenTiltChangeSignal: null,
 
 		onEraserDownSignal: null,
 		onEraserUpSignal: null,
@@ -31,20 +36,22 @@ define([
 
 		pressureCheckArray: null,
 		pressureCheckArrayLimit: 30,
-		fakePressureChangeSpeed: .1,
+		fakePressureChangeSpeed: 0.1,
 		initialize: function(userInputMouse) {
+			var Signal = signals.Signal;
 			this.userInputMouse = userInputMouse || new UserInputMouse();
 
-			this.onPenDownSignal = new signals.Signal();
-			this.onPenUpSignal = new signals.Signal();
-			this.onPenMoveSignal = new signals.Signal();
-			this.onPenDragSignal = new signals.Signal();
-			this.onPenHoverSignal = new signals.Signal();
-			this.onPenPressureChangeSignal = new signals.Signal();
+			this.onPenDownSignal = new Signal();
+			this.onPenUpSignal = new Signal();
+			this.onPenMoveSignal = new Signal();
+			this.onPenDragSignal = new Signal();
+			this.onPenHoverSignal = new Signal();
+			this.onPenPressureChangeSignal = new Signal();
+			this.onPenTiltChangeSignal = new Signal();
 
-			this.onEraserDownSignal = new signals.Signal();
-			this.onEraserUpSignal = new signals.Signal();
-			this.onEraserDragSignal = new signals.Signal();
+			this.onEraserDownSignal = new Signal();
+			this.onEraserUpSignal = new Signal();
+			this.onEraserDragSignal = new Signal();
 
 			this.updateEmulated = this.updateEmulated.bind(this);
 			this.updatePhysical = this.updatePhysical.bind(this);
@@ -80,39 +87,55 @@ define([
 
 		getWacomPlugin: function() {
 			return document.getElementById('wtPlugin');
-	    },
+		},
 
-	   	isPluginLoaded: function() {
+		isPluginLoaded: function() {
 			var retVersion = "";
 			var pluginVersion = this.getWacomPlugin().version;
 
-			if ( pluginVersion != undefined ) {
-		       	retVersion = pluginVersion;
+			if ( pluginVersion !== undefined ) {
+				retVersion = pluginVersion;
 				this.isRealTablet = true;
 			}
 
 			return retVersion;
-	    },
+		},
 
-	    updatePhysical:function() {
-	    	this.pressure = this.isDown ? this.wacomPlugin.penAPI.pressure : 0;
-	    	this.updatePressure(this.pressure);
-	    },	
+		updatePhysical:function() {
+			this.pressure = this.isDown ? this.wacomPlugin.penAPI.pressure : 0;
+			this.tiltX = this.wacomPlugin.penAPI.tiltX;
+			this.tiltY = this.wacomPlugin.penAPI.tiltY;
+			this.updatePressure(this.pressure);
+			this.updateTilt(this.tiltX, this.tiltY);
+		},	
 
-	    updatePressure: function(pressure) {
-	    	this.pressure = pressure;
-	    	if(this.pressure != this.lastPressure) this.onPenPressureChangeSignal.dispatch(this.pressure);
-	    	this.lastPressure = this.pressure;
-	    },
-
-	    updateEmulated:function() {
-    		var targetPressure = this.isDown ? 1 : 0;
+		updateEmulated:function() {
+			var targetPressure = this.isDown ? 1 : 0;
 			if(this.pressure > targetPressure) this.pressure -= this.fakePressureChangeSpeed;
 			else if(this.pressure < targetPressure) this.pressure += this.fakePressureChangeSpeed;
-			if(this.pressure < .05) this.pressure = 0;
+			if(this.pressure < 0.05) this.pressure = 0;
 			if(this.pressure > 1) this.pressure = 1;
 			this.updatePressure(this.pressure);
-	    },
+			this.updateTilt(this.tiltX, this.tiltY);
+		},
+
+		updatePressure: function(pressure) {
+			this.pressure = pressure;
+			if(this.pressure !== this.lastPressure) {
+				this.onPenPressureChangeSignal.dispatch(this.pressure);
+				this.lastPressure = this.pressure;
+			}
+		},
+
+		updateTilt: function(tiltX, tiltY) {
+			this.tiltX = tiltX;
+			this.tiltY = tiltY;
+			if(this.tiltX !== this.lastTiltX && this.tiltY !== this.lastTiltY) {
+				this.onPenTiltChangeSignal.dispatch(this.tiltX, this.tiltY);
+				this.lastTiltX = this.tiltX;
+				this.lastTiltY = this.tiltY;
+			}
+		},
 
 		penDown: function(x, y) {
 			//console.log("penDown");
@@ -127,7 +150,7 @@ define([
 		},
 		
 		penMove: function(x, y) {
-			//console.log("penMove");
+			console.log("penMove");
 			this.onPenMoveSignal.dispatch(x, y);
 		},
 
@@ -154,8 +177,8 @@ define([
 			if(this.pressureCheckArray.length == this.pressureCheckArrayLimit) {
 				var usingWacom = false;
 				for (var i = this.pressureCheckArray.length - 1; i >= 0; i--) {
-					if(this.pressureCheckArray[i] != 0) usingWacom = true;
-				};
+					if(this.pressureCheckArray[i] !== 0) usingWacom = true;
+				}
 				if(!usingWacom && this.usingPhysicalTablet) {
 					this.usingPhysicalTablet = false;
 					this.update = this.updateEmulated;

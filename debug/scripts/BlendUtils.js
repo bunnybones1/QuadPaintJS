@@ -50,7 +50,7 @@ define([
 				//109, 	//normal with inversion on low alpha
 				//117, 	//normal with inversion on low alpha
 				165 	//invert				//invert multiply
-			]
+			];
 			this.totalCurated = this.curatedModes.length;
 			this.total = this.equation.length * this.src.length * this.dst.length;
 			/*
@@ -60,17 +60,21 @@ define([
 			*/
 	    },
 	    jumpFloat: function(material, float) {
+	    	// return;
 	    	var index = ~~(this.total * float);
 	    	this.jump(material, Math.min(index, this.total-1));
 	    },
 	    jumpCuratedFloat: function(material, float) {
+	    	// return;
 	    	var index = ~~(this.totalCurated * float);
 	    	this.jumpCurated(material, Math.min(index, this.totalCurated-1));
 	    },
 	    jumpCurated: function(material, index) {
+	    	// return;
 	    	this.jump(material, this.curatedModes[Math.min(index, this.totalCurated-1)]);
 	    },
 	    jump: function(material, index) {
+	    	// return;
 	    	var equation = ~~(index / this.dst.length / this.src.length);
 	    	var src = ~~((index / this.dst.length) % this.src.length);
 	    	var dst = ~~(index % this.dst.length);

@@ -24,7 +24,7 @@ define([
 
 			var colorObj = new THREE.Color(color);
 			
-			var outlineGeometry = new THREE.PlaneGeometry(width, this.stepHeight - 4);
+			var outlineGeometry = new THREE.PlaneGeometry(width, this.stepHeight);
 			var outlineMaterial = new THREE.MeshBasicMaterial(
 				{
 					color:colorObj.getHex(),
@@ -33,7 +33,7 @@ define([
 				}
 			);
 
-			var fillGeometry = new THREE.PlaneGeometry(width-4, (height/stepperObject.total)-8);
+			var fillGeometry = new THREE.PlaneGeometry(width, (height/stepperObject.total));
 			var fillMaterial = new THREE.MeshBasicMaterial(
 				{
 					color:colorObj.getHex(),

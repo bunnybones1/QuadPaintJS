@@ -15,16 +15,18 @@ define([
 		if(valueKey in object && !(("_"+valueKey) in object)) {
 			//set up a signal and a getter/setter pair
 			//signal
-			object[valueKey+"ChangedSignal"] = new signals.Signal();
+			var signal = new signals.Signal();
+			var hiddenValueKey = "_" + valueKey;
+			object[valueKey+"ChangedSignal"] = signal;
 			//setter
-			object["_"+valueKey] = object[valueKey]; 
-			Object.defineProperty(object, valueKey,{
+			object[hiddenValueKey] = object[valueKey]; 
+			Object.defineProperty(object, valueKey, {
 				set: function(val){
-					this["_"+valueKey] = val;
-					this[valueKey+"ChangedSignal"].dispatch(val);
+					this[hiddenValueKey] = val;
+					signal.dispatch(val);
 				},
 				get:  function(){
-					return this["_"+valueKey];
+					return this[hiddenValueKey];
 				}
 			});
 		}
