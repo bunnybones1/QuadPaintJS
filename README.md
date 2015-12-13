@@ -34,11 +34,11 @@ Features
 	12		Total
 
 Stroke Data
-	Vertex Stream
-	Blendmode
+- Vertex Stream
+- Blendmode
 
 Painting Data
-	Stroke Data Stream
+- Stroke Data Stream
 
 DEVELOPMENT
 -----------
