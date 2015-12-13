@@ -18,17 +18,17 @@ Features
 - [ ] Sphere Vertex Shader
 - [ ] Deluxe Sphere Vertex Shader that support realtime animation
 - [x] Vertex Stream Channels
-	1	R   Red
-	1	G   Blue
-	1	B   Green
-	1	A   Alpha
-	2	XY  CenterCoordinate (XY)
-	1   Z   Depth (Z)
-	1	Th  Thickness
-	1	Ss  Sin Speed
-	1	Sa  Sin Amplitude
-	1	Ja  Jitter Amplitude
-	1	Bt  Birth Time
+	- 1	R   Red
+	- 1	G   Blue
+	- 1	B   Green
+	- 1	A   Alpha
+	- 2	XY  CenterCoordinate (XY)
+	- 1   Z   Depth (Z)
+	- 1	Th  Thickness
+	- 1	Ss  Sin Speed
+	- 1	Sa  Sin Amplitude
+	- 1	Ja  Jitter Amplitude
+	- 1	Bt  Birth Time
 
 
 	12		Total
