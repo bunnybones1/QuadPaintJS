@@ -54,6 +54,11 @@ define([
 				var data = jqxhr.responseJSON[0];
 				var buffers = data.buffers;
 				var i;
+				if(buffers['position[]'] !== undefined) {
+					buffers.position = buffers['position[]'];
+					buffers.rgba = buffers['rgba[]'];
+					buffers.custom = buffers['custom[]'];
+				}
 				if(buffers.position !== undefined) {
 					buffers.totalTriangles = Number(buffers.totalTriangles);
 					if(isNaN(buffers.totalTriangles)) {
@@ -87,7 +92,23 @@ define([
 				custom: stroke.geometry.attributes.custom.array,
 				blendModeCurated: stroke.blendModeCurated,
 				totalTriangles: stroke.totalTriangles
-			}
+			};
+			var temp = [];
+			for (var i = 0; i < data.position.length; i++) {
+				temp[i] = data.position[i];
+			};
+			data.position = temp;
+			temp = [];
+			for (var i = 0; i < data.rgba.length; i++) {
+				temp[i] = data.rgba[i];
+			};
+			data.rgba = temp;
+			temp = [];
+			for (var i = 0; i < data.custom.length; i++) {
+				temp[i] = data.custom[i];
+			};
+			data.custom = temp;
+			var dataString = JSON.stringify(data);
 			var jqxhr = $.post( "save/" + this.paintingName, data, "json")
 			.done(function() {
 				console.log( "save painting success" );

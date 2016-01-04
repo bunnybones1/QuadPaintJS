@@ -9,13 +9,15 @@ define([
 	"_",
 	"TestFactory",
 	"userInput/Manager",
+	"view/TouchPanZoomController",
 	"db/Manager",
 	"brush/PaintBrush",
 	"Utils",
 	"BlendUtils",
 	"GUIManager",
 	'RendererStats',
-	'screenfull'
+	'screenfull',
+	'hooker'
 ], function(
 	Class,
 	three,
@@ -27,13 +29,15 @@ define([
 	_,
 	TestFactory,
 	UserInputManager,
+	TouchPanZoomController,
 	DBManager,
 	PaintBrush,
 	Utils,
 	BlendUtils,
 	GUIManager,
 	RendererStats,
-	screenfull
+	screenfull,
+	hooker
 ) {
 	var MainPresenter = new Class({
 		displayManager: null,
@@ -44,8 +48,9 @@ define([
 		paintBrush: null,
 		brushStrokes: null,
 		strokes: null,
-		skipFrames:0,
-		skipFrameCounter:0,
+		skipFrames: 0,
+		skipFrameCounter: 0,
+		autoTiltCamera: true,
 		initialize: function () {
 			console.log("Hello World!");
 			this.addStrokeToScene = this.addStrokeToScene.bind(this);
@@ -59,6 +64,16 @@ define([
 			this.guiManager = new GUIManager(this.renderer);
 			this.dbManager = new DBManager();
 			this.userInputManager = new UserInputManager(this.canvas);
+			this.touchPanZoomController = new TouchPanZoomController(this.userInputManager.touch, this.displayManager.splittingView);
+			var _this = this;
+			hooker.hook(this.touchPanZoomController, 'panZoomStartHandler', {
+				once: true, 
+				pre: function() {
+					console.log('touch detected');
+					_this.autoTiltCamera = false;
+					_this.displayManager.splittingViewUI.autoPan = false;
+				}
+			});
 			this.paintBrush = new PaintBrush(this.displayManager.splittingViewUI, this.renderer.context);
 			this.paintBrush.onCreateBrushStrokeSignal.add(this.addStrokeToScene);
 			this.brushStrokes = [];
@@ -183,14 +198,16 @@ define([
 			}
 			this.userInputManager.update();
 			this.displayManager.splittingViewUI.animate();
-			var helper1 = this.helper1;
-			var helper2 = this.helper2;
-			var camera = this.displayManager.camera;
-			helper1.position.copy(camera.position);
-			helper1.rotation.copy(camera.rotation);
-			helper1.translateZ(1);
-			helper2.lookAt(helper1.position);
-			camera.quaternion.slerp(helper2.quaternion, 0.03 * (1-Math.abs(helper1.position.y)));
+			if(this.autoTiltCamera) {
+				var helper1 = this.helper1;
+				var helper2 = this.helper2;
+				var camera = this.displayManager.camera;
+				helper1.position.copy(camera.position);
+				helper1.rotation.copy(camera.rotation);
+				helper1.translateZ(1);
+				helper2.lookAt(helper1.position);
+				camera.quaternion.slerp(helper2.quaternion, 0.03 * (1-Math.abs(helper1.position.y)));
+			}
 			this.render();
 			if(this.rendererStats) this.rendererStats.update(this.renderer);
             this.paintBrush.animate();

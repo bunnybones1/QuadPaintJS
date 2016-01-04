@@ -23,7 +23,7 @@ module.exports = function(grunt) {
 	            command: [
 	                //'mkdir database',
 	                //'mkdir database/db',
-	                'mongod --dbpath database/db'
+	                'mongod --dbpath ./database/db'
 	            ].join('&&'),
 		        options: {
 		            async: true,

@@ -23,5 +23,5 @@ void main() {
 		custom.z * sin(140.0 + randTime * 3.0),
 		0.0
 	);
-	gl_Position = projectionMatrix * (mvPosition + wave + shiver);
+	gl_Position = projectionMatrix * (mvPosition);
 }

@@ -1,6 +1,7 @@
 define([
 	'Class',
 	'userInput/Mouse',
+	'userInput/Touch',
 	'userInput/Tablet',
 	'userInput/Keyboard',
 	'userInput/HotKeys',
@@ -9,6 +10,7 @@ define([
 ], function(
 	Class,
 	Mouse,
+	Touch,
 	Tablet,
 	Keyboard,
 	HotKeys,
@@ -27,6 +29,7 @@ define([
 
 			//input devices
 			this.mouse = new Mouse();
+			this.touch = new Touch();
 			this.tablet = new Tablet(this.mouse);
 
 			this.keyboard = new Keyboard();

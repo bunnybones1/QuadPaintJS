@@ -3,10 +3,22 @@ var express = require('express');
 var monk = require('monk');
 var db =  monk('localhost:27017/test');
 var app = new express();
+var bodyParser = require('body-parser');
 
 console.log("init app.js");
 app.use(express.static(__dirname + '/debug'));
-app.use(express.bodyParser());
+
+app.use(bodyParser.urlencoded({
+	extended: false,
+	parameterLimit: 10000,
+	limit: 1024 * 1024 * 10
+}));
+
+app.use(bodyParser.json({
+	extended: false,
+	parameterLimit: 10000,
+	limit: 1024 * 1024 * 10
+}));
 app.get('/',function(req,res){
 	db.driver.admin.listDatabases(function(e,dbs){
 		res.json(dbs);
@@ -25,6 +37,7 @@ app.get('/load/:name',function(req,res){
 	},{
 		"buffers": 0,
 	},function(e,docs){
+		if(e) throw e;
 		docs.forEach(function(doc) {
 			if(doc.buffers) {
 				console.log('projection failed. Manually removing buffer from response.')
@@ -43,7 +56,7 @@ app.get('/load/:name/:id',function(req,res){
 });
 
 app.post('/save/:name',function(req,res){
-	//console.log(req.body);
+	// console.log(req.body);
 	var collection = db.get(req.params.name);
 	collection.insert({
 		buffers:req.body

@@ -11,6 +11,7 @@ define([
 		projector: null,
 		pen: null,
 		viewUnderPen: null,
+		autoPan: true,
 		initialize:function(splittingViewBase, canvas) {
 			this.splittingView = splittingViewBase;
 			this.canvas = canvas;
@@ -53,8 +54,10 @@ define([
 		},
 		animate:function() {
 			if(!this.viewUnderPen) return;
-			this.viewUnderPen.autoPan(this.pen);
-			this.viewUnderPen.zoom(1 - (this.autoZoom - 0.5) * this.zoomSpeed);
+			if(this.autoPan) {
+				this.viewUnderPen.autoPan(this.pen);
+				this.viewUnderPen.zoom(1 - (this.autoZoom - 0.5) * this.zoomSpeed);
+			}
 		},
 	    onResize:function(width, height) {
 	    }

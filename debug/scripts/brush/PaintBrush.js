@@ -165,7 +165,7 @@ define([
 		},
 		onPenTiltChange: function(tiltX, tiltY) {
 			if(!this.viewUI.viewUnderPen) return;
-			var x = -Math.sin(tiltX * Math.PI * 0.5);
+			var x = Math.sin(tiltX * Math.PI * 0.5);
 			var y = Math.sin(tiltY * Math.PI * 0.5);
 			this.angle = Math.atan2(y, x) + Math.PI * 0.5;
 			this.angleLength = Math.sqrt(x*x + y*y);

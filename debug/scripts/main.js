@@ -15,7 +15,10 @@ require.config({
 		'screenfull': 'vendor/screenfull',
 		'preloadjs': 'vendor/preloadjs.min',
 		'BaseClass': 'vendor/class/BaseClass',
-		'Class': 'vendor/class/Class'
+		'Class': 'vendor/class/Class',
+		'hooker': 'vendor/ba-hooker-shim',
+		'hooker-pre': 'vendor/ba-hooker-pre',
+		'hookerImplementation': 'vendor/ba-hooker'
 	},
 
 	shim: {
@@ -36,6 +39,12 @@ require.config({
 		},
 		'screenfull': {
 			exports: 'screenfull'
+		},
+		'hooker': {
+			deps: ['hookerImplementation']
+		},
+		'hookerImplementation': {
+			deps: ['hooker-pre']
 		}
 	}
 });
