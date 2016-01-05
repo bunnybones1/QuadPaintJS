@@ -18,6 +18,10 @@ define([
 			this.averageRay = new THREE.Vector3();
 
 			this.startCutoffPeriod = this.startCutoffPeriod.bind(this);
+			this.startingTouches = [];
+			for (var i = 0; i < this.startingTouches.length; i++) {
+				this.startingTouches[i] = undefined;
+			};
 
 			this.drawMoveHandler = this.drawMoveHandler.bind(this);
 			this.drawEndHandler = this.drawEndHandler.bind(this);
@@ -36,6 +40,7 @@ define([
 			Array.prototype.forEach.call(event.changedTouches, function(touch){
 				_this.touchHandler('start', event);
 				_this.identifiersStarting.push(touch.identifier);
+				_this.startingTouches[touch.identifier] = touch;
 				if(_this.startTimeoutId === undefined) {
 					_this.startTimeoutId = setTimeout(_this.startCutoffPeriod, _this.startDurationTolerance);
 				}
@@ -45,8 +50,12 @@ define([
 		startCutoffPeriod: function() {
 			delete this.startTimeoutId;
 			console.log('gesture', this.identifiersStarting.length );
+			var _this = this;
+			var touches = this.startingTouches.filter(function(touch){
+				if(touch && _this.identifiersStarting.indexOf(touch.identifier) !== -1) return touch;
+			});
 			if(this.identifiersStarting.length === 1) {
-				this.drawStartHandler();
+				this.drawStartHandler(touches);
 				this.functionalTouchGroups.push({
 					identifiers: this.identifiersStarting.slice(),
 					onMove: this.drawMoveHandler,
@@ -54,7 +63,7 @@ define([
 					name: 'draw'
 				});
 			} else if(this.identifiersStarting.length === 2) {
-				this.panZoomStartHandler();
+				this.panZoomStartHandler(touches);
 				this.functionalTouchGroups.push({
 					identifiers: this.identifiersStarting.slice(),
 					onMove: this.panZoomMoveHandler,
@@ -62,7 +71,7 @@ define([
 					name: 'panZoom'
 				});
 			} else if(this.identifiersStarting.length === 3) {
-				this.magicStartHandler();
+				this.magicStartHandler(touches);
 				this.functionalTouchGroups.push({
 					identifiers: this.identifiersStarting.slice(),
 					onMove: this.magicMoveHandler,
@@ -75,17 +84,30 @@ define([
 
 		touchEndHandler: function(event) {
 			this.touchHandler('end', event);
-			var index = this.identifiersStarting.indexOf(event.which);
-			if(index !== -1) this.identifiersStarting.splice(index, 1);
-			var groupToEndIndex;
+			var _this = this;
+			Array.prototype.forEach.call(event.changedTouches, function(touch) {
+				var index = _this.identifiersStarting.indexOf(touch.identifier);
+				if(index !== -1) _this.identifiersStarting.splice(index, 1);
+			});
+			var groupToEndIndex = -1;
 			this.functionalTouchGroups.forEach(function(group, i){
-				index = group.identifiers.indexOf(event.which);
-				if(index !== -1) {
-					groupToEndIndex = i;
-				}
-				group.onEnd();
+				Array.prototype.forEach.call(event.changedTouches, function(touch) {
+					index = group.identifiers.indexOf(touch.identifier);
+					if(index !== -1) {
+						groupToEndIndex = i;
+					}
+				});
 			});
 			if(groupToEndIndex !== -1) {
+				var group = this.functionalTouchGroups[groupToEndIndex];
+				var implicatedChangedTouches = Array.prototype.filter.call(event.changedTouches, function(touch) {
+					return group.identifiers.indexOf(touch.identifier) !== -1;
+				});
+				var implicatedTouches = Array.prototype.filter.call(event.touches, function(touch) {
+					return group.identifiers.indexOf(touch.identifier) !== -1;
+				});
+				group.onEnd(implicatedTouches.concat(implicatedChangedTouches));
+
 				this.functionalTouchGroups.splice(groupToEndIndex, 1);
 			}
 		},
@@ -99,20 +121,20 @@ define([
 			});
 		},
 
-		drawStartHandler: function() {
-			console.log('draw start');
+		drawStartHandler: function(touches) {
+			console.log('draw start', touches.length);
 		},
 
 		drawMoveHandler: function(touches) {
 			console.log('draw', touches.length);
 		},
 
-		drawEndHandler: function() {
-			console.log('draw end');
+		drawEndHandler: function(touches) {
+			console.log('draw end', touches.length);
 		},
 
-		panZoomStartHandler: function() {
-			console.log('panZoom start');
+		panZoomStartHandler: function(touches) {
+			console.log('panZoom start', touches.length);
 		},
 
 		panZoomMoveHandler: function(touches) {
@@ -137,7 +159,7 @@ define([
 				quat1.setFromUnitVectors(this.averageRay, camera.lastAverageRay);
 				var euler = new THREE.Euler();
 				euler.setFromQuaternion(quat1);
-//				camera.quaternion.copy(quat1.multiply(camera.quaternion));
+				// camera.quaternion.copy(quat1.multiply(camera.quaternion));
 				camera.rotateX(euler.x);
 				camera.rotateY(euler.y);
 
@@ -156,8 +178,7 @@ define([
 				camera.rotateY(-localRecenterRotationEuler.y);
 				camera.rotateX(-localRecenterRotationEuler.x);
 
-				camera.fov = Math.min(120, Math.max(0.001, camera.fov * zoom));
-				camera.updateProjectionMatrix();
+				this.zoomHandler(zoom);
  			}
 
 			if(!camera.lastAverageRay) {
@@ -169,29 +190,33 @@ define([
 			camera.lastTouchGapWidth = touchGapWidth;
 		},
 
-		panZoomEndHandler: function() {
-			console.log('panZoom end');
+		panZoomEndHandler: function(touches) {
+			console.log('panZoom end', touches.length);
 			delete this.splittingView.camera.lastAverageRay;
 			delete this.splittingView.camera.lastTouchAngle;
 		},
 
-		magicStartHandler: function() {
-			console.log('magic start');
+		magicStartHandler: function(touches) {
+			console.log('magic start', touches.length);
 		},
 
 		magicMoveHandler: function(touches) {
 			console.log('magic', touches.length);
 		},
 
-		magicEndHandler: function() {
-			console.log('magic end');
+		magicEndHandler: function(touches) {
+			console.log('magic end', touches.length);
 		},
 
 		touchHandler: function(type, event) {
 			event.preventDefault();
-			Array.prototype.forEach.call(event.touches, function(touch, i) {
-				// console.log(type, i, touch.identifier, touch.pageX, touch.pageY);
+			Array.prototype.forEach.call(event.changedTouches, function(touch) {
+				console.log(type, touch.identifier, touch.pageX, touch.pageY);
 			});
+		},
+		
+		zoomHandler: function(zoom) {
+			console.log('zoom', zoom);
 		}
 	});
 	return TouchPanZoomController;

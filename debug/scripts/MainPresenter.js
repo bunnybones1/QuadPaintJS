@@ -66,14 +66,6 @@ define([
 			this.userInputManager = new UserInputManager(this.canvas);
 			this.touchPanZoomController = new TouchPanZoomController(this.userInputManager.touch, this.displayManager.splittingView);
 			var _this = this;
-			hooker.hook(this.touchPanZoomController, 'panZoomStartHandler', {
-				once: true, 
-				pre: function() {
-					console.log('touch detected');
-					_this.autoTiltCamera = false;
-					_this.displayManager.splittingViewUI.autoPan = false;
-				}
-			});
 			this.paintBrush = new PaintBrush(this.displayManager.splittingViewUI, this.renderer.context);
 			this.paintBrush.onCreateBrushStrokeSignal.add(this.addStrokeToScene);
 			this.brushStrokes = [];
@@ -89,6 +81,56 @@ define([
 			this.userInputManager.mouse.onMouseMoveSignal.add(this.displayManager.splittingViewUI.onPenMove);
 			this.userInputManager.tablet.onPenDragSignal.add(this.displayManager.splittingViewUI.onPenDrag);
 			this.userInputManager.mouse.onMouseWheelSignal.add(this.displayManager.splittingViewUI.onMouseWheel);
+
+			this.touchPanZoomController.drawStartHandler = function(touches) {
+				console.log('external draw start', touches.length);
+				var x = touches[0].clientX;
+				var y = touches[0].clientY;
+				_this.displayManager.splittingViewUI.onPenDown(x, y);
+				_this.userInputManager.tablet.penDown(x, y);
+			}
+
+			this.touchPanZoomController.drawMoveHandler = function(touches) {
+				console.log('external draw move', touches.length);
+				var x = touches[0].clientX;
+				var y = touches[0].clientY;
+				_this.displayManager.splittingViewUI.onPenDrag(x, y, 1);
+				_this.userInputManager.tablet.penDrag(x, y);
+			}
+
+			this.touchPanZoomController.drawEndHandler = function(touches) {
+				console.log('external draw end', touches.length);
+				var x = touches[0].clientX;
+				var y = touches[0].clientY;
+				_this.displayManager.splittingViewUI.onPenUp(x, y);
+				_this.userInputManager.tablet.penUp(x, y);
+			}
+
+			this.touchPanZoomController.zoomHandler = function(zoomScale) {
+				if(_this.displayManager.splittingViewUI.viewUnderPen) _this.displayManager.splittingViewUI.viewUnderPen.zoom(zoomScale);
+			}
+
+			var hookParams = {
+				once: true, 
+				pre: function() {
+					console.log('touch detected');
+					_this.autoTiltCamera = false;
+					_this.displayManager.splittingViewUI.autoPan = false;
+					_this.paintBrush.size = 0.1;
+				}
+			};
+			hooker.hook(this.touchPanZoomController, 'panZoomStartHandler', hookParams);
+			hooker.hook(this.touchPanZoomController, 'drawStartHandler', hookParams);
+
+			hooker.hook(this.touchPanZoomController, 'panZoomStartHandler', {
+				once: true,
+				pre: function(touches) {
+					var x = touches[0].clientX;
+					var y = touches[0].clientY;
+					_this.displayManager.splittingViewUI.viewUnderPen = _this.displayManager.splittingViewUI.splittingView.getViewUnderCoordinate(x, y);
+				}
+			});
+
 
 			//keyboard and faders
 			this.createFader(Global.brightnessUniform, "value", 88, 90, 0xffffff, 0.001, 1.01);

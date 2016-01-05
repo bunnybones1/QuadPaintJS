@@ -1,7 +1,7 @@
 var mongo = require('mongodb');
 var express = require('express');
 var monk = require('monk');
-var db =  monk('localhost:27017/test');
+var db =  monk('127.0.0.1:27017/test');
 var app = new express();
 var bodyParser = require('body-parser');
 
