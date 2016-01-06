@@ -9,7 +9,10 @@ define([
 	"_",
 	"TestFactory",
 	"userInput/Manager",
-	"view/TouchPanZoomController",
+	"view/TouchController",
+	"TouchDrawHandler",
+	"TouchPanZoomHandler",
+	"TouchMagicHandler",
 	"db/Manager",
 	"brush/PaintBrush",
 	"Utils",
@@ -29,7 +32,10 @@ define([
 	_,
 	TestFactory,
 	UserInputManager,
-	TouchPanZoomController,
+	TouchController,
+	TouchDrawHandler,
+	TouchPanZoomHandler,
+	TouchMagicHandler,
 	DBManager,
 	PaintBrush,
 	Utils,
@@ -64,7 +70,7 @@ define([
 			this.guiManager = new GUIManager(this.renderer);
 			this.dbManager = new DBManager();
 			this.userInputManager = new UserInputManager(this.canvas);
-			this.touchPanZoomController = new TouchPanZoomController(this.userInputManager.touch, this.displayManager.splittingView);
+			this.touchController = new TouchController(this.userInputManager.touch, this.displayManager.splittingView);
 			var _this = this;
 			this.paintBrush = new PaintBrush(this.displayManager.splittingViewUI, this.renderer.context);
 			this.paintBrush.onCreateBrushStrokeSignal.add(this.addStrokeToScene);
@@ -82,33 +88,14 @@ define([
 			this.userInputManager.tablet.onPenDragSignal.add(this.displayManager.splittingViewUI.onPenDrag);
 			this.userInputManager.mouse.onMouseWheelSignal.add(this.displayManager.splittingViewUI.onMouseWheel);
 
-			this.touchPanZoomController.drawStartHandler = function(touches) {
-				console.log('external draw start', touches.length);
-				var x = touches[0].clientX;
-				var y = touches[0].clientY;
-				_this.displayManager.splittingViewUI.onPenDown(x, y);
-				_this.userInputManager.tablet.penDown(x, y);
-			}
+			this.touchDrawHandler = new TouchDrawHandler(this.displayManager.splittingViewUI, this.userInputManager.tablet);
+			this.touchController.registerHandler(this.touchDrawHandler);
 
-			this.touchPanZoomController.drawMoveHandler = function(touches) {
-				console.log('external draw move', touches.length);
-				var x = touches[0].clientX;
-				var y = touches[0].clientY;
-				_this.displayManager.splittingViewUI.onPenDrag(x, y, 1);
-				_this.userInputManager.tablet.penDrag(x, y);
-			}
+			this.touchPanZoomHandler = new TouchPanZoomHandler(this.displayManager.splittingViewUI);
+			this.touchController.registerHandler(this.touchPanZoomHandler);
 
-			this.touchPanZoomController.drawEndHandler = function(touches) {
-				console.log('external draw end', touches.length);
-				var x = touches[0].clientX;
-				var y = touches[0].clientY;
-				_this.displayManager.splittingViewUI.onPenUp(x, y);
-				_this.userInputManager.tablet.penUp(x, y);
-			}
-
-			this.touchPanZoomController.zoomHandler = function(zoomScale) {
-				if(_this.displayManager.splittingViewUI.viewUnderPen) _this.displayManager.splittingViewUI.viewUnderPen.zoom(zoomScale);
-			}
+			this.touchMagicHandler = new TouchMagicHandler(this.displayManager.splittingViewUI);
+			this.touchController.registerHandler(this.touchMagicHandler);
 
 			var hookParams = {
 				once: true, 
@@ -119,10 +106,10 @@ define([
 					_this.paintBrush.size = 0.1;
 				}
 			};
-			hooker.hook(this.touchPanZoomController, 'panZoomStartHandler', hookParams);
-			hooker.hook(this.touchPanZoomController, 'drawStartHandler', hookParams);
+			hooker.hook(this.touchPanZoomHandler, 'onStart', hookParams);
+			hooker.hook(this.touchDrawHandler, 'onStart', hookParams);
 
-			hooker.hook(this.touchPanZoomController, 'panZoomStartHandler', {
+			hooker.hook(this.touchPanZoomHandler, 'onStart', {
 				once: true,
 				pre: function(touches) {
 					var x = touches[0].clientX;
