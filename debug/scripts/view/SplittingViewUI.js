@@ -26,8 +26,7 @@ define([
 	        this.zoomSpeed = 0.05;
 		},
 		onPenDown:function(x, y) {
-			this.pen.x = x;
-			this.pen.y = y;
+			this.updatePenAndView(x, y);
 		},
 		onPenDrag:function(x, y, pressure) {
 			this.isPenDown = true;

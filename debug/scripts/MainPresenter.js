@@ -9,7 +9,10 @@ define([
 	"_",
 	"TestFactory",
 	"userInput/Manager",
-	"view/TouchPanZoomController",
+	"view/TouchController",
+	"TouchDrawHandler",
+	"TouchPanZoomHandler",
+	"TouchMagicHandler",
 	"db/Manager",
 	"brush/PaintBrush",
 	"Utils",
@@ -29,7 +32,10 @@ define([
 	_,
 	TestFactory,
 	UserInputManager,
-	TouchPanZoomController,
+	TouchController,
+	TouchDrawHandler,
+	TouchPanZoomHandler,
+	TouchMagicHandler,
 	DBManager,
 	PaintBrush,
 	Utils,
@@ -64,16 +70,8 @@ define([
 			this.guiManager = new GUIManager(this.renderer);
 			this.dbManager = new DBManager();
 			this.userInputManager = new UserInputManager(this.canvas);
-			this.touchPanZoomController = new TouchPanZoomController(this.userInputManager.touch, this.displayManager.splittingView);
+			this.touchController = new TouchController(this.userInputManager.touch, this.displayManager.splittingView);
 			var _this = this;
-			hooker.hook(this.touchPanZoomController, 'panZoomStartHandler', {
-				once: true, 
-				pre: function() {
-					console.log('touch detected');
-					_this.autoTiltCamera = false;
-					_this.displayManager.splittingViewUI.autoPan = false;
-				}
-			});
 			this.paintBrush = new PaintBrush(this.displayManager.splittingViewUI, this.renderer.context);
 			this.paintBrush.onCreateBrushStrokeSignal.add(this.addStrokeToScene);
 			this.brushStrokes = [];
@@ -89,6 +87,37 @@ define([
 			this.userInputManager.mouse.onMouseMoveSignal.add(this.displayManager.splittingViewUI.onPenMove);
 			this.userInputManager.tablet.onPenDragSignal.add(this.displayManager.splittingViewUI.onPenDrag);
 			this.userInputManager.mouse.onMouseWheelSignal.add(this.displayManager.splittingViewUI.onMouseWheel);
+
+			this.touchDrawHandler = new TouchDrawHandler(this.displayManager.splittingViewUI, this.userInputManager.tablet);
+			this.touchController.registerHandler(this.touchDrawHandler);
+
+			this.touchPanZoomHandler = new TouchPanZoomHandler(this.displayManager.splittingViewUI);
+			this.touchController.registerHandler(this.touchPanZoomHandler);
+
+			this.touchMagicHandler = new TouchMagicHandler(this.displayManager.splittingViewUI);
+			this.touchController.registerHandler(this.touchMagicHandler);
+
+			var hookParams = {
+				once: true, 
+				pre: function() {
+					console.log('touch detected');
+					_this.autoTiltCamera = false;
+					_this.displayManager.splittingViewUI.autoPan = false;
+					_this.paintBrush.size = 0.1;
+				}
+			};
+			hooker.hook(this.touchPanZoomHandler, 'onStart', hookParams);
+			hooker.hook(this.touchDrawHandler, 'onStart', hookParams);
+
+			hooker.hook(this.touchPanZoomHandler, 'onStart', {
+				once: true,
+				pre: function(touches) {
+					var x = touches[0].clientX;
+					var y = touches[0].clientY;
+					_this.displayManager.splittingViewUI.viewUnderPen = _this.displayManager.splittingViewUI.splittingView.getViewUnderCoordinate(x, y);
+				}
+			});
+
 
 			//keyboard and faders
 			this.createFader(Global.brightnessUniform, "value", 88, 90, 0xffffff, 0.001, 1.01);

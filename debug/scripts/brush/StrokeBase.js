@@ -8,7 +8,7 @@ define([
 	var StrokeBase = new Class({
 		paintBrush: null,
 		display: null,
-		spacingThreshold: 5,
+		spacingThreshold: 3,
 		overallSpacingThreshold: .1,
 		fovCompensator: 1,
 		initialize:function(paintBrush) {
